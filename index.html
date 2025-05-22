@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8/'>
+  <link rel="manifest" href="./manifest.json">
+  <script>
+    // service workerが有効なら、service-worker.js を登録します
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js');
+   }
+  </script>
+</head>
+<body>
+    <button id="allow_push_notification">トークン取得</button>
+    <p id="output"></p>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDv04BwQiB3j8twzWO8Yn-At817s-J5bhU",
+          authDomain: "pushnotifications-1195f.firebaseapp.com",
+          projectId: "pushnotifications-1195f",
+          storageBucket: "pushnotifications-1195f.firebasestorage.app",
+          messagingSenderId: "195683652511",
+          appId: "1:195683652511:web:9bab528c4d4b5be540a3aa"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // 通知を許可するボタンが押された時のアクション
+        const btn = document.getElementById('allow_push_notification');
+        btn.addEventListener("click", function () {
+            //let promise = Notification.requestPermission();
+            //console.log("promise: ",promise);
+            if (!("Notification" in window)) {
+                // ブラウザーが通知に対応しているか調べる
+                alert("このブラウザーはデスクトップ通知には対応していません。");
+            } else if (Notification.permission !== "denied") {
+
+            //if(Notification.permission !== "denied") {
+                Notification.requestPermission().then((permission) => {
+                    const messaging = getMessaging();
+                    // Add the public key generated from the console here.
+                    getToken(messaging, {vapidKey: "BHDoMfTOJ1tHC2PMpqRkSqeIqYI-yI3YBDCBk5vXai8295tb3X2pBnJ7sjG0jb3ZIMJPk_W6-TPsROo7xcJROLQ"})
+                        .then((token) => {
+                            if (token) {
+                                // tokenを出力
+                                //document.getElementById('output').textContent = `${token.Promise}`;
+                                console.log( "token", token);
+                                document.getElementById('output').textContent = token;
+                            }else{
+                                console.log('登録トークンがありません。生成する許可をリクエストします。');
+                            }
+                        })
+                        .catch((err) => {
+                            console.log('getToken Error',err);
+                        });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
